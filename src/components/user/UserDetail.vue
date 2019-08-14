@@ -1,6 +1,6 @@
 <template>
     <div class="userInfo">
-        <el-link class="el-icon-back" :underline="false" @click="goBack">返回</el-link>
+        <el-link class="el-icon-back" :underline="false" @click="goBack">返回用户管理</el-link>
         <div class="main">
             <el-form :model="ruleForm" status-icon :rules="rules" ref="ruleForm" label-width="100px" class="demo-ruleForm">
                 <div class="main-left">
@@ -102,7 +102,7 @@
 <script>
     import { regionData ,CodeToText } from 'element-china-area-data'
     import axios from 'axios'
-
+    import userManager from './UserManager'
     export default {
         name: "UserInfo",
         data() {
@@ -153,6 +153,7 @@
             }
         },
         created(){
+            console.log(userManager)
             this.getUserInfo()
         },
         methods: {

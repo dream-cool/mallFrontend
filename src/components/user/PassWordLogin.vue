@@ -13,11 +13,11 @@
         <br>
         <el-form :model="ruleForm" status-icon :rules="rules" ref="ruleForm" label-width="100px" class="demo-ruleForm">
             <el-form-item  prop="userName">
-                <el-input type="text" v-model="ruleForm.pass" autocomplete="off"
+                <el-input type="text" v-model="ruleForm.userName" autocomplete="off"
                           placeholder="请输入用户名"  ></el-input>
             </el-form-item>
             <el-form-item prop="passWord">
-                <el-input type="password" v-model="ruleForm.pass" autocomplete="off"
+                <el-input type="password" v-model="ruleForm.passWord" autocomplete="off"
                           placeholder="请输入密码"></el-input>
             </el-form-item>
             <el-form-item>
@@ -30,25 +30,43 @@
 </template>
 
 <script>
+    import axios from 'axios'
     export default {
         name: "PassWordLogin",
         data() {
+            var validateName = (rule,value,callback)=>{
+                console.log(1)
+                if (value === '') {
+                    callback(new Error('请输入用户名'));
+                } else{
+                    let data = {"userName":value};
+                    axios.post(
+                        '/user/registerCheck',data
+                    ).then(res => {
+                        if(res.data.code != 402){
+                            callback(new Error('用户名不存在，请检查用户名是否输入正确'));
+                        }
+                        callback();
+                    })
+                }
+            };
             var validatePass = (rule, value, callback) => {
                 if (value === '') {
                     callback(new Error('请输入密码'));
                 } else {
-                    if (this.ruleForm.checkPass !== '') {
-                        this.$refs.ruleForm.validateField('checkPass');
-                    }
                     callback();
                 }
             };
             return {
                 ruleForm: {
-                    pass: '',
+                    userName:'',
+                    passWord: ''
                 },
                 rules: {
-                    pass: [
+                    userName: [
+                        { validator: validateName, trigger: 'blur' }
+                    ],
+                    passWord: [
                         { validator: validatePass, trigger: 'blur' }
                     ],
                 }
@@ -58,7 +76,29 @@
             submitForm(formName) {
                 this.$refs[formName].validate((valid) => {
                     if (valid) {
-                        alert('submit!');
+                        let data = {userName:this.ruleForm.userName,passWord:this.ruleForm.passWord};
+                        axios.post(
+                            '/login/passwordLoginCheck',data
+                        ).then(res => {
+                            if(res.data.code == 2000){
+                                this.$message({
+                                    showClose: true,
+                                    message: '登录成功',
+                                    type: 'success',
+                                    duration: 2000,
+                                });
+                                this.$router.push('/home')
+                            } else {
+                                this.$message({
+                                    showClose: true,
+                                    message: '密码错误，登录失败，请检查密码是否输入正确',
+                                    type: 'error',
+                                    duration: 2000,
+                                });
+                            }
+                        })
+
+                        console.log(data)
                     } else {
                         console.log('error submit!!');
                         return false;

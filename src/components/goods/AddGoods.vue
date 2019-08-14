@@ -1,6 +1,6 @@
 <template>
     <div class="addGoods">
-        <el-link class="el-icon-back" :underline="false" @click="goBack">返回</el-link>
+        <el-link class="el-icon-back" :underline="false" @click="goBack">返回商品管理</el-link>
         <el-form :model="ruleForm" status-icon :rules="rules" ref="ruleForm" label-width="100px" class="demo-ruleForm">
         <el-form-item label="用户名" prop="userName">
             <el-input type="text"  v-model="ruleForm.userName" autocomplete="off"></el-input>
@@ -186,7 +186,7 @@
                 console.log(this.ruleForm.address)
             },
             goBack() {
-                this.$router.push({path: '/admin/userManager'});
+                this.$router.push({path: '/admin/goodsManager'});
             }
         },
     }

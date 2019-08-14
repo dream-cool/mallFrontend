@@ -1,6 +1,6 @@
 <template>
     <div class="addUser">
-        <el-link class="el-icon-back" :underline="false" @click="goBack">返回</el-link>
+        <el-link class="el-icon-back" :underline="false" @click="goBack">返回用户管理</el-link>
         <el-form :model="ruleForm" status-icon :rules="rules" ref="ruleForm" label-width="100px" class="demo-ruleForm">
             <el-form-item label="用户名" prop="userName">
                 <el-input type="text"  v-model="ruleForm.userName" autocomplete="off"></el-input>

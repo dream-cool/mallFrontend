@@ -1,7 +1,7 @@
 <template>
     <div class="userManager">
-        <el-table :data="users"
-                  @row-click="Edit">
+        <el-table :data="users" @filter-change="filterHandler"
+                  >
             <el-table-column type="expand">
                 <template slot-scope="props">
                     <el-form label-position="left"  class="demo-table-expand">
@@ -26,35 +26,36 @@
             <el-table-column prop="userId" label="用户ID" width="100" sortable></el-table-column>
             <el-table-column prop="userName" label="姓名" width="100" sortable></el-table-column>
             <el-table-column prop="tel" label="电话" width="170" sortable></el-table-column>
-            <el-table-column prop="role" label="角色" width="150"
+            <el-table-column prop="role" label="角色" width="150" size="medium"
                              :filters="[{ text: '用户', value: 'user' }, { text: '员工', value: 'employee' },
                                             {text:'管理员',value:'admin'}]"
-                             :filter-method="filterTag"></el-table-column>
+                             :filter-change="filterHandler"
+                             :filter-method="filterRole"></el-table-column>
             <el-table-column prop="sex" label="性别" width="100"
                              :filters="[{ text: '男', value: '1' }, { text: '女', value: '0' }]"
-                             :filter-method="filterTag"></el-table-column>
+                             :filter-method="filterSex"></el-table-column>
             <el-table-column prop="isVIP" label="VIP" width="100"
                              :filters="[{ text: 'VIP', value: '1' }, { text: '普通用户', value: '0' }]"
-                             :filter-method="filterTag"></el-table-column>
+                             :filter-method="filterVIP"></el-table-column>
             <el-table-column prop="state" label="状态" width="100"
                              :filters="[{ text: '正常', value: '1' }, { text: '锁定', value: '0' }]"
-                             :filter-method="filterTag"></el-table-column>
+                             :filter-method="filterState"></el-table-column>
 
             <el-table-column prop="regTime" label="注册时间" width="200"
                              column-key="regdate"
                              :filters="[{text: '最近一小时', value: 3600},{text: '最近一天', value: 3600*24},
                              {text: '最近一个月', value: 3600*24*30},{text: '最近一年', value: 3600*24*356}]"
-                             :filter-method="filterHandler"></el-table-column>
+                             :filter-method="filterRegTime"></el-table-column>
             <el-table-column prop="lastLoginTime" label="最后登录" width="200"
                              column-key="logdate"
                              :filters="[{text: '最近一小时', value: 3600},{text: '最近一天', value: 3600*24},
                              {text: '最近一个月', value: 3600*24*30},{text: '最近一年', value: 3600*24*356}]"
-                             :filter-method="filterHandler"></el-table-column>
+                             :filter-method="filterLastLoginTime"></el-table-column>
             <el-table-column align="right">
                 <template slot="header" slot-scope="scope">
                     <el-input
                             v-model="search"
-                            size="mini"
+                            size="medium"
                             placeholder="输入关键字搜索"/>
                 </template>
                 <template slot-scope="scope">
@@ -92,7 +93,9 @@
                 total: 0,
                 users: [],
                 pageSize:10,
-                search:''
+                search:'',
+                defaultUser:'',
+                condiction:{}
             }
         },
         created() {
@@ -122,9 +125,13 @@
                         } else {
                             this.users[i].isVIP = '不是'
                         }
+                        if (i == 0){
+                            this.defaultUser = this.users[i];
+                        }
                     }
                     this.currentPage = res.data.pageNum;
                     this.total = res.data.total;
+                    console.log(this.defaultUser)
                 })
             },
             handleCurrentChange(val) {
@@ -135,11 +142,35 @@
                 this.pageSize = val
                 this.getUserInfo();
             },
-            filterTag(){
-
+            filterHandler(value, row, column) {
+                console.log(value)
+                console.log(row)
+                const property = column['property'];
+                return row[property] === value;
             },
-            filterHandler(){
-
+            filterRole(value){
+                this.condiction.role = value
+                this.select();
+            },
+            filterSex(value){
+                this.condiction.sex = value
+                this.select();
+            },
+            filterVIP(value){
+                this.condiction.isVIP = value
+                this.select();
+            },
+            filterState(value){
+                this.condiction.state = value
+                this.select();
+            },
+            filterRegTime(value){
+                this.condiction.regTime = value
+                this.select();
+            },
+            filterLastLoginTime(value){
+                this.condiction.lastLoginTime = value
+                this.select();
             },
             userEdit(userId) {
                 this.$router.push({ path:'/admin/userDetail/'+userId})
@@ -171,9 +202,22 @@
                     });
                 });
             },
-            Edit:function(event){
-                this.userEdit(event)
-            }
+            select(){
+                axios({
+                    url: '/user/delete',
+                    params: {type: '', userId: id},
+                    timeout: 5000
+                }).then(res => {
+                    this.getUserInfo()
+                    this.$message({
+                        showClose: true,
+                        message: '删除成功',
+                        type: 'success',
+                        duration: 2000,
+                    });
+                    console.log(res.data)
+                });
+            },
         },
         components: {}
     }
@@ -181,6 +225,6 @@
 
 <style scoped>
     .block{
-        margin-left: 400px
+        margin-left: 400px;
     }
 </style>

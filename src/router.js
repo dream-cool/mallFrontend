@@ -28,6 +28,7 @@ var router = new VueRouter({
     // { path:"/user/login", component: userManager},
     { path:"/", redirect: '/home'},
     { path:"/home", component: mallIndex},
+    { path:"/test", component: test},
     { path:"/admin", component: adminIndex,
       children:[
         { path:"/admin/userManager", component:userManager },
